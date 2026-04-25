@@ -51,9 +51,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var scheduler: RefreshScheduler?
     private var isObservingSettings = true
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         terminateOtherRunningInstances()
-        NSApp.setActivationPolicy(.accessory)
         applyAppearance()
         menuBar = MenuBarController(
             viewModel: viewModel,

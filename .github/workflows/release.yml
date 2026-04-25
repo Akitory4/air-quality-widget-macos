@@ -49,10 +49,10 @@ jobs:
         run: make archive
 
       - name: Build DMG
-        run: make dmg
+        run: make package-dmg
 
       - name: Build ZIP
-        run: make release
+        run: make package-zip
 
       - name: Collect artefacts
         id: artefacts
