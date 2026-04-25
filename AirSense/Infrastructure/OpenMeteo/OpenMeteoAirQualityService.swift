@@ -40,8 +40,13 @@ final class OpenMeteoAirQualityService: AirQualityService {
     }
 
     static func map(dto: OpenMeteoAirQualityDTO, city: City, standard: AQIStandard) -> AirQualitySnapshot {
-        let rawAQI: Double? = (standard == .european) ? dto.current.european_aqi : dto.current.us_aqi
-        let aqi = Int((rawAQI ?? 0).rounded())
+        let aqi: Int
+        switch standard {
+        case .european:
+            aqi = europeanAQIBucket(from: dto.current.european_aqi)
+        case .usEpa:
+            aqi = Int((dto.current.us_aqi ?? 0).rounded())
+        }
         let pollutants = Pollutants(
             pm25: dto.current.pm2_5,
             pm10: dto.current.pm10,
@@ -59,6 +64,18 @@ final class OpenMeteoAirQualityService: AirQualityService {
             standard: standard,
             pollutants: pollutants
         )
+    }
+
+    static func europeanAQIBucket(from rawValue: Double?) -> Int {
+        guard let rawValue else { return 0 }
+        switch rawValue {
+        case ..<20:     return 1
+        case ..<40:     return 2
+        case ..<60:     return 3
+        case ..<80:     return 4
+        case ...100:    return 5
+        default:        return 6
+        }
     }
 
     private static func parseTime(_ raw: String?) -> Date? {

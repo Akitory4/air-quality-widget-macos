@@ -3,7 +3,7 @@ PROJECT := AirSense.xcodeproj
 DESTINATION := platform=macOS
 INSTALL_DEST := /Applications/AirSense.app
 
-.PHONY: setup generate build test lint clean archive release dmg install
+.PHONY: setup generate build test lint clean archive package-dmg package-zip release dmg install
 
 setup:
 	@command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
@@ -53,7 +53,8 @@ archive:
 	cp -R build/DerivedData/Build/Products/Release/$(SCHEME).app build/Release/AirSense.app
 	@echo "Built build/Release/AirSense.app"
 
-dmg: archive
+package-dmg:
+	@test -d build/Release/AirSense.app || { echo "build/Release/AirSense.app not found. Run: make archive"; exit 1; }
 	@command -v create-dmg >/dev/null 2>&1 || { echo "create-dmg not installed. Run: brew install create-dmg"; exit 1; }
 	@VERSION=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/Release/AirSense.app/Contents/Info.plist); \
 	OUT=build/Release/AirSense-$$VERSION.dmg; \
@@ -69,6 +70,8 @@ dmg: archive
 		"$$OUT" \
 		build/Release/AirSense.app && \
 	echo "Packaged $$OUT"
+
+dmg: archive package-dmg
 
 install: archive
 	@echo "-- stopping running instance"
@@ -93,7 +96,10 @@ install: archive
 	@sleep 2
 	@echo "-- done. Open Notification Center → Edit Widgets to see the widget."
 
-release: archive
+package-zip:
+	@test -d build/Release/AirSense.app || { echo "build/Release/AirSense.app not found. Run: make archive"; exit 1; }
 	@VERSION=$$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/Release/AirSense.app/Contents/Info.plist); \
 	cd build/Release && ditto -c -k --sequesterRsrc --keepParent AirSense.app AirSense-$$VERSION.zip && \
 	echo "Packaged build/Release/AirSense-$$VERSION.zip"
+
+release: archive package-zip

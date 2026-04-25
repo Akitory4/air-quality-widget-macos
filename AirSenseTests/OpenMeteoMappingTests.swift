@@ -8,9 +8,9 @@ final class OpenMeteoMappingTests: XCTestCase {
     func test_airQuality_mapsEuropeanAQI() throws {
         let json = """
         {
-          "current": {
+            "current": {
             "time": "2026-04-18T12:00",
-            "european_aqi": 3.0,
+            "european_aqi": 45.0,
             "us_aqi": 72.0,
             "pm2_5": 18.5,
             "pm10": 34.1,
@@ -30,13 +30,25 @@ final class OpenMeteoMappingTests: XCTestCase {
         XCTAssertEqual(snap.pollutants.units, .concentration)
     }
 
+    func test_airQuality_mapsOpenMeteoEuropeanAQIToOneThroughSixScale() {
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 0), 1)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 19.9), 1)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 20), 2)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 33), 2)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 40), 3)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 60), 4)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 80), 5)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 100), 5)
+        XCTAssertEqual(OpenMeteoAirQualityService.europeanAQIBucket(from: 100.1), 6)
+    }
+
     func test_airQuality_mapsUSEPAAQI() throws {
         let json = """
         {
           "current": {
             "time": null,
-            "european_aqi": 3.0,
-            "us_aqi": 72.4,
+            "european_aqi": 33.0,
+            "us_aqi": 151.6,
             "pm2_5": null, "pm10": null, "ozone": null,
             "nitrogen_dioxide": null, "sulphur_dioxide": null, "carbon_monoxide": null
           }
@@ -44,8 +56,9 @@ final class OpenMeteoMappingTests: XCTestCase {
         """.data(using: .utf8)!
         let dto = try JSONDecoder().decode(OpenMeteoAirQualityDTO.self, from: json)
         let snap = OpenMeteoAirQualityService.map(dto: dto, city: .limassol, standard: .usEpa)
-        XCTAssertEqual(snap.aqi, 72)
+        XCTAssertEqual(snap.aqi, 152)
         XCTAssertEqual(snap.standard, .usEpa)
+        XCTAssertEqual(snap.category, .poor)
         XCTAssertNil(snap.pollutants.pm25)
     }
 

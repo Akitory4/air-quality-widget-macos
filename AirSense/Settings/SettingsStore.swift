@@ -48,7 +48,14 @@ final class SettingsStore {
         didSet { defaults.set(refreshInterval.rawValue, forKey: SettingsKey.refreshInterval) }
     }
     var aqiStandard: AQIStandard {
-        didSet { defaults.set(aqiStandard.rawValue, forKey: SettingsKey.aqiStandard) }
+        didSet {
+            let resolvedStandard = Self.resolvedAQIStandard(aqiStandard, for: provider)
+            guard resolvedStandard == aqiStandard else {
+                aqiStandard = resolvedStandard
+                return
+            }
+            persistAQIStandard()
+        }
     }
     var showValueInMenuBar: Bool {
         didSet { defaults.set(showValueInMenuBar, forKey: SettingsKey.showValueInMenuBar) }
@@ -60,7 +67,13 @@ final class SettingsStore {
         didSet { defaults.set(hasCompletedOnboarding, forKey: SettingsKey.hasCompletedOnboarding) }
     }
     var provider: AQIProvider {
-        didSet { defaults.set(provider.rawValue, forKey: SettingsKey.provider) }
+        didSet {
+            defaults.set(provider.rawValue, forKey: SettingsKey.provider)
+            let resolvedStandard = Self.resolvedAQIStandard(aqiStandard, for: provider)
+            if resolvedStandard != aqiStandard {
+                aqiStandard = resolvedStandard
+            }
+        }
     }
     var appearance: AppAppearance {
         didSet {
@@ -77,18 +90,27 @@ final class SettingsStore {
         self.selectedCity = Self.loadCity(from: defaults) ?? .limassol
         self.refreshInterval = (defaults.object(forKey: SettingsKey.refreshInterval) as? Int)
             .flatMap(RefreshInterval.init(rawValue:)) ?? .fifteen
-        self.aqiStandard = (defaults.string(forKey: SettingsKey.aqiStandard))
+        let storedProvider = (defaults.string(forKey: SettingsKey.provider))
+            .flatMap(AQIProvider.init(rawValue:)) ?? .openMeteo
+        let storedStandard = (defaults.string(forKey: SettingsKey.aqiStandard))
             .flatMap(AQIStandard.init(rawValue:)) ?? .european
+        self.aqiStandard = Self.resolvedAQIStandard(storedStandard, for: storedProvider)
         self.showValueInMenuBar = (defaults.object(forKey: SettingsKey.showValueInMenuBar) as? Bool) ?? true
         self.launchAtLogin = defaults.bool(forKey: SettingsKey.launchAtLogin)
         self.hasCompletedOnboarding = defaults.bool(forKey: SettingsKey.hasCompletedOnboarding)
-        self.provider = (defaults.string(forKey: SettingsKey.provider))
-            .flatMap(AQIProvider.init(rawValue:)) ?? .openMeteo
+        self.provider = storedProvider
         self.appearance = (defaults.string(forKey: SettingsKey.appearance))
             .flatMap(AppAppearance.init(rawValue:)) ?? .system
+        if self.aqiStandard != storedStandard {
+            persistAQIStandard()
+        }
         if syncSharedAppearance {
             SharedAppearanceStore.save(appearance)
         }
+    }
+
+    private func persistAQIStandard() {
+        defaults.set(aqiStandard.rawValue, forKey: SettingsKey.aqiStandard)
     }
 
     private func persistCity() {
@@ -104,5 +126,12 @@ final class SettingsStore {
     private static func loadCity(from defaults: UserDefaults) -> City? {
         guard let data = defaults.data(forKey: SettingsKey.selectedCity) else { return nil }
         return try? JSONDecoder().decode(City.self, from: data)
+    }
+
+    private static func resolvedAQIStandard(_ standard: AQIStandard, for provider: AQIProvider) -> AQIStandard {
+        if standard == .european, !provider.supportsEuropeanAQI {
+            return .usEpa
+        }
+        return standard
     }
 }

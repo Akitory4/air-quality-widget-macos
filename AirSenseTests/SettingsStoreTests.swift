@@ -46,4 +46,34 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.provider, .waqi)
         XCTAssertEqual(reloaded.appearance, .light)
     }
+
+    func test_waqiProvider_normalizesEuropeanStandardOnInit() {
+        let defaults = makeDefaults()
+        defaults.set(AQIProvider.waqi.rawValue, forKey: "provider")
+        defaults.set(AQIStandard.european.rawValue, forKey: "aqiStandard")
+
+        let store = SettingsStore(defaults: defaults, syncSharedAppearance: false)
+
+        XCTAssertEqual(store.provider, .waqi)
+        XCTAssertEqual(store.aqiStandard, .usEpa)
+        XCTAssertEqual(defaults.string(forKey: "aqiStandard"), AQIStandard.usEpa.rawValue)
+    }
+
+    func test_switchingToWAQIProvider_normalizesEuropeanStandard() {
+        let store = SettingsStore(defaults: makeDefaults(), syncSharedAppearance: false)
+        store.aqiStandard = .european
+
+        store.provider = .waqi
+
+        XCTAssertEqual(store.aqiStandard, .usEpa)
+    }
+
+    func test_europeanStandardCannotBeSetWhileProviderIsWAQI() {
+        let store = SettingsStore(defaults: makeDefaults(), syncSharedAppearance: false)
+        store.provider = .waqi
+
+        store.aqiStandard = .european
+
+        XCTAssertEqual(store.aqiStandard, .usEpa)
+    }
 }
