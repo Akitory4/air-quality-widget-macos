@@ -8,6 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 _No changes yet._
 
+## [0.1.1] — 2026-04-25
+
+Patch release focused on AQI scale correctness, Launchpad visibility, and release packaging.
+
+### Changed
+
+- Bumped the app marketing version to `0.1.1` while keeping build `2`.
+- AirSense now declares the macOS Utilities app category and uses runtime accessory activation instead of `LSUIElement`, so it can appear in Launchpad while still behaving as a menu-bar app.
+
+### Fixed
+
+- Open-Meteo European AQI values are now mapped from the provider's raw `0–100+` scale into AirSense's European `1–6` display scale.
+- US EPA AQI mapping remains on the native `0–500` scale and has explicit regression coverage for category boundaries.
+- WAQI provider settings now normalize unsupported European AQI selections back to US EPA on load, provider switch, and direct setting changes.
+- Release packaging no longer deletes the generated DMG before upload: the workflow now archives once, then separately packages DMG and ZIP assets for GitHub Releases.
+
+### Tests
+
+- Added regression tests for European AQI bucket mapping, US EPA category boundaries, and WAQI AQI-standard normalization.
+
 ## [0.1.0-beta] — 2026-04-19
 
 First public beta. The app is feature-complete for a personal air-quality menu-bar widget, with an optional higher-accuracy provider (WAQI) and a polished onboarding/popover flow.
