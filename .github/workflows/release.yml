@@ -1,0 +1,89 @@
+name: Release
+
+# Triggers on every tag that looks like a version (e.g. `0.1.0-beta`, `0.2.0`,
+# `v1.0.0`). Builds the Release .app, packages it into a drag-to-Applications
+# DMG and a parallel ZIP, then attaches both to the matching GitHub Release.
+#
+# Notes on signing:
+# - We use ad-hoc ("Sign to Run Locally") signing — same as local `make dmg`.
+#   Users are instructed in README to right-click → Open on first launch.
+# - When/if a Developer ID cert is added, this workflow is the place to wire
+#   `IMPORT_P12_BASE64` + `IMPORT_P12_PASSWORD` secrets + a `notarytool submit`
+#   step. Not in scope for 0.1.0-beta.
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write  # required to upload release assets
+
+jobs:
+  build-dmg:
+    name: Build DMG & ZIP
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Install build tooling
+        run: brew install xcodegen create-dmg
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Archive Release .app
+        run: make archive
+
+      - name: Build DMG
+        run: make dmg
+
+      - name: Build ZIP
+        run: make release
+
+      - name: Collect artefacts
+        id: artefacts
+        run: |
+          # `make archive` writes to build/Release. Pick up whatever DMG/ZIP
+          # make produced (filenames include MARKETING_VERSION).
+          DMG=$(ls build/Release/*.dmg | head -n 1)
+          ZIP=$(ls build/Release/*.zip | head -n 1)
+          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "Found:"
+          echo "  DMG: $DMG"
+          echo "  ZIP: $ZIP"
+
+      - name: Upload to workflow artefacts (backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: airsense-${{ github.ref_name }}
+          path: |
+            build/Release/*.dmg
+            build/Release/*.zip
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # The Release for this tag is created/updated implicitly; if the user
+          # already created it from the web UI, assets are just appended.
+          files: |
+            ${{ steps.artefacts.outputs.dmg }}
+            ${{ steps.artefacts.outputs.zip }}
+          # Keep release body intact (don't clobber manual notes).
+          append_body: false
+          fail_on_unmatched_files: true

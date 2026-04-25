@@ -1,0 +1,19 @@
+AirSense — Air Quality Widget for macOS
+Copyright 2026 Alex Efimov
+
+This product includes software developed by Alex Efimov.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this product except in compliance with the License. You may
+obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+---------------------------------------------------------------------
+Third-party data and services used at runtime (not bundled):
+
+  * Air-quality and geocoding data from Open-Meteo (https://open-meteo.com)
+    — CC-BY 4.0.
+  * Optional ground-station readings from the World Air Quality Index
+    Project (https://aqicn.org) — per-station attributions are surfaced
+    in-app (Settings → About, and the popover footer).

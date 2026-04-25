@@ -1,0 +1,95 @@
+name: AirSense
+options:
+  bundleIdPrefix: local
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  generateEmptyDirectories: true
+  defaultConfig: Debug
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    SWIFT_EMIT_LOC_STRINGS: YES
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ENABLE_HARDENED_RUNTIME: YES
+    ENABLE_APP_SANDBOX: YES
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "2"
+
+targets:
+  AirSense:
+    type: application
+    platform: macOS
+    sources:
+      - path: AirSense
+        excludes:
+          - "**/*.md"
+    dependencies:
+      - target: AirSenseWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.airqualitywidget
+        PRODUCT_NAME: AirSense
+        INFOPLIST_FILE: AirSense/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AirSense/Resources/AirSense.entitlements
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        GENERATE_INFOPLIST_FILE: NO
+        COMBINE_HIDPI_IMAGES: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    scheme:
+      testTargets:
+        - AirSenseTests
+      gatherCoverageData: true
+      environmentVariables:
+        OS_ACTIVITY_MODE: default
+
+  AirSenseWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: AirSenseWidget
+        excludes:
+          - "**/*.md"
+      # Shared sources (compiled into both targets).
+      - path: AirSense/Configuration/AppAppearance.swift
+      - path: AirSense/Configuration/AppConfiguration.swift
+      - path: AirSense/Domain/Models/AirQualitySnapshot.swift
+      - path: AirSense/Domain/Models/City.swift
+      - path: AirSense/Domain/Models/Pollutants.swift
+      - path: AirSense/Domain/Models/AQIStandard.swift
+      - path: AirSense/Infrastructure/Storage/SharedStorage.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.airqualitywidget.AirSenseWidget
+        PRODUCT_NAME: AirSenseWidget
+        INFOPLIST_FILE: AirSenseWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AirSenseWidget/AirSenseWidget.entitlements
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+
+  AirSenseTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: AirSenseTests
+    dependencies:
+      - target: AirSense
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.airqualitywidget.tests
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AirSense.app/Contents/MacOS/AirSense"
+        GENERATE_INFOPLIST_FILE: YES

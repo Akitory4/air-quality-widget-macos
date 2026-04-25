@@ -1,0 +1,83 @@
+excluded:
+  - build
+  - DerivedData
+  - .build
+  - "**/*.xcodeproj"
+  # `.claude/` and `.agents/` host Claude Code skill templates
+  # (documentation), not first-party source. They include deliberate
+  # examples of patterns that trip style rules (force-unwrap demos,
+  # aligned literals, generic `T`, etc.) and must not be linted.
+  - .claude
+  - .agents
+
+disabled_rules:
+  - trailing_whitespace
+  - todo
+  # `colon` forbids aligned dictionary literals (`"key"   : value`). Our
+  # pollutant/AQI lookup tables are clearer with alignment — keep them.
+  - colon
+  # New in SwiftLint 0.57+. Flags `Data(s.utf8)` vs `s.data(using: .utf8)!`
+  # across the test suite where the force-unwrap on a literal is a
+  # deliberate assertion. Not worth a test rewrite for 0.1.0-beta.
+  - non_optional_string_data_conversion
+
+opt_in_rules:
+  - closure_spacing
+  - empty_count
+  - empty_string
+  - first_where
+  - implicit_return
+  - redundant_nil_coalescing
+  - sorted_first_last
+  - unused_import
+  # `force_unwrapping` deliberately omitted: we use `URL(string: "…")!`
+  # for hard-coded endpoint literals and `let url = URL(…)!` in test
+  # fixtures. A preconditionFailure-guarded computed constant is the
+  # safer pattern; we adopt it case-by-case (see PopoverChrome) rather
+  # than forcing a sweeping refactor.
+
+line_length:
+  warning: 140
+  error: 200
+  ignores_urls: true
+  ignores_comments: true
+
+identifier_name:
+  # Allow single-letter bindings like `let c = decoder.container(...)`
+  # which are idiomatic in custom Decodable implementations, plus short
+  # JSON DTO field names (`us_aqi`, `pm2_5`, etc.) that must match the
+  # upstream API's snake_case keys exactly.
+  min_length: 1
+  validates_start_with_lowercase: false
+  excluded:
+    - id
+    - ok
+    - no
+    - to
+    - c
+    - f
+    - p
+    - s
+    - us_aqi
+    - european_aqi
+    - pm2_5
+    - pm10
+    - carbon_monoxide
+    - nitrogen_dioxide
+    - sulphur_dioxide
+    - country_code
+    - carbon_dioxide
+    - ammonia
+
+type_name:
+  min_length: 3
+
+function_body_length:
+  # StatusItemIconProvider.build sits just above the default; we keep
+  # the SF-Symbol configuration readable instead of sharding it.
+  warning: 80
+  error: 120
+
+file_length:
+  warning: 400
+  error: 800

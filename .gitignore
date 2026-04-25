@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+*.swp
+
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# XcodeGen-generated project (source of truth is project.yml).
+# Regenerate locally with `make generate` or `xcodegen generate`.
+*.xcodeproj/
+*.xcworkspace/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# CocoaPods / Carthage (unused, kept for safety)
+Pods/
+Carthage/Build/
+
+# IDEs
+.idea/
+.vscode/
+
+# Secrets / local overrides
+.env
+*.secret
+secrets.plist
+
+.claude
+CLAUDE.md
+
+.agents
+AGENTS.md
