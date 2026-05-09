@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>AirSense Updates</title>
+    <link>https://github.com/Akitory4/air-quality-widget-macos/releases</link>
+    <description>AirSense release feed.</description>
+    <language>en</language>
+    <item>
+      <title>Version 0.1.3</title>
+      <link>https://github.com/Akitory4/air-quality-widget-macos/releases/tag/0.1.3</link>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>0.1.3</sparkle:shortVersionString>
+      <pubDate>Sat, 09 May 2026 22:31:02 +0000</pubDate>
+      <enclosure url="https://github.com/Akitory4/air-quality-widget-macos/releases/download/0.1.3/AirSense-0.1.3.zip" sparkle:edSignature="rMRh8ZethjcWf8ie/p3rk9xpPL/dG/t1p4eETxRl+D/m94nxeHBsG/NFF3brdf5i7eDeT86soOftbMcPqTP6Ag==" length="3148962" type="application/octet-stream" />
+    </item>
+  </channel>
+</rss>
