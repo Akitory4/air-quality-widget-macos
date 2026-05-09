@@ -141,6 +141,14 @@ final class AppUpdateController: NSObject, ObservableObject {
         }
     }
 
+    private func finishWithoutUpdate() {
+        installRequested = false
+        resetProgressCounters()
+        availableUpdate = nil
+        phase = .idle
+        errorMessage = nil
+    }
+
     private func resetProgressCounters() {
         expectedDownloadLength = nil
         receivedDownloadLength = 0
@@ -151,6 +159,15 @@ final class AppUpdateController: NSObject, ObservableObject {
         resetProgressCounters()
         phase = .failed(message)
         errorMessage = message
+    }
+
+    nonisolated static func isNoUpdateError(_ error: any Error) -> Bool {
+        let nsError = error as NSError
+        guard nsError.code == 1001 else { return false }
+
+        return nsError.domain == "SUSparkleErrorDomain"
+            || nsError.localizedDescription.localizedCaseInsensitiveContains("up to date")
+            || nsError.localizedDescription.localizedCaseInsensitiveContains("no update")
     }
 
     private static func hasUsableSparkleConfiguration(in bundle: Bundle) -> Bool {
@@ -177,16 +194,24 @@ extension AppUpdateController: SPUUpdaterDelegate {
     }
 
     func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
-        clearAvailableUpdate()
-        errorMessage = nil
-        installRequested = false
+        finishWithoutUpdate()
     }
 
     func updater(_ updater: SPUUpdater, didAbortWithError error: any Error) {
+        guard !Self.isNoUpdateError(error) else {
+            finishWithoutUpdate()
+            return
+        }
+
         fail(L10n.Update.failed(error.localizedDescription))
     }
 
     func updater(_ updater: SPUUpdater, failedToDownloadUpdate item: SUAppcastItem, error: any Error) {
+        guard !Self.isNoUpdateError(error) else {
+            finishWithoutUpdate()
+            return
+        }
+
         fail(L10n.Update.failed(error.localizedDescription))
     }
 
@@ -257,12 +282,15 @@ extension AppUpdateController: SPUUserDriver {
     func showUpdateReleaseNotesFailedToDownloadWithError(_ error: any Error) {}
 
     func showUpdateNotFoundWithError(_ error: any Error) async {
-        clearAvailableUpdate()
-        installRequested = false
-        errorMessage = nil
+        finishWithoutUpdate()
     }
 
     func showUpdaterError(_ error: any Error) async {
+        guard !Self.isNoUpdateError(error) else {
+            finishWithoutUpdate()
+            return
+        }
+
         fail(L10n.Update.failed(error.localizedDescription))
     }
 

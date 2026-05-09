@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Release workflow can now be run manually with an existing `release_tag`, allowing a broken release asset and appcast to be republished from the current `main` without moving the tag.
 - Sandbox entitlements now include Sparkle installer-launcher mach lookup exceptions required for sandboxed self-updates.
 
+### Fixed
+
+- Sparkle's "You're up to date!" result is now treated as a normal no-update state instead of a red update failure banner.
+
 
 ## [0.1.1] — 2026-04-25
 

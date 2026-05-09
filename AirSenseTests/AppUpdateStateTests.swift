@@ -31,4 +31,24 @@ final class AppUpdateStateTests: XCTestCase {
         XCTAssertEqual(L10n.Update.updateToVersion("0.2.0"), "Update to version 0.2.0")
         XCTAssertEqual(L10n.Update.percent(42), "42%")
     }
+
+    func test_sparkleNoUpdateError_isNotAUserVisibleFailure() {
+        let error = NSError(
+            domain: "SUSparkleErrorDomain",
+            code: 1001,
+            userInfo: [NSLocalizedDescriptionKey: "You're up to date!"]
+        )
+
+        XCTAssertTrue(AppUpdateController.isNoUpdateError(error))
+    }
+
+    func test_regularSparkleError_isStillAUserVisibleFailure() {
+        let error = NSError(
+            domain: "SUSparkleErrorDomain",
+            code: 2001,
+            userInfo: [NSLocalizedDescriptionKey: "Download failed"]
+        )
+
+        XCTAssertFalse(AppUpdateController.isNoUpdateError(error))
+    }
 }
