@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Release builds now accept `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_ED_KEY` build settings so dev/MVP ad-hoc builds can keep updater configuration explicit.
 - Release packaging now re-signs the embedded Sparkle framework and app extension ad-hoc, and disables library validation for the dev/MVP hardened-runtime app so Sparkle can load at launch.
+- Release workflow now publishes `docs/appcast.xml` by pushing the `gh-pages` branch instead of using the GitHub Pages deployment API, avoiding first-run Pages API permission failures.
 - Sandbox entitlements now include Sparkle installer-launcher mach lookup exceptions required for sandboxed self-updates.
 
 

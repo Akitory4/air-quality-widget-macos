@@ -71,7 +71,7 @@ The generated `.xcodeproj` is intentionally gitignored — `project.yml` is the 
 
 MVP ships **without a Developer ID signature**. The project uses Xcode's ad-hoc "Sign to Run Locally" signing. When launching a distributed build for the first time, macOS will block it — open *System Settings → Privacy & Security* and choose *Open anyway*. Developer ID signing + notarisation is tracked for a later release.
 
-Auto-updates use Sparkle and GitHub Pages. Release builds embed the checked-in `SPARKLE_PUBLIC_ED_KEY`, and `scripts/generate_appcast.sh` must be run with Sparkle's `sign_update` tool available so `docs/appcast.xml` contains a signed enclosure for `AirSense-<version>.zip`.
+Auto-updates use Sparkle and GitHub Pages. Release builds embed the checked-in `SPARKLE_PUBLIC_ED_KEY`, and `scripts/generate_appcast.sh` must be run with Sparkle's `sign_update` tool available so `docs/appcast.xml` contains a signed enclosure for `AirSense-<version>.zip`. The release workflow publishes the appcast to the `gh-pages` branch; configure GitHub Pages once with source `Deploy from a branch`, branch `gh-pages`, folder `/`.
 
 ## Privacy
 

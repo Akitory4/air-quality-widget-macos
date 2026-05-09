@@ -3,7 +3,7 @@ name: Release
 # Triggers on every tag that looks like a version (e.g. `0.1.0-beta`, `0.2.0`,
 # `v1.0.0`). Builds the Release .app, packages it into a drag-to-Applications
 # DMG and a parallel Sparkle ZIP, attaches both to the matching GitHub Release,
-# then publishes the signed Sparkle appcast to GitHub Pages.
+# then publishes the signed Sparkle appcast to the gh-pages branch.
 #
 # Notes on signing:
 # - We use ad-hoc ("Sign to Run Locally") signing — same as local `make dmg`.
@@ -26,16 +26,11 @@ concurrency:
 
 permissions:
   contents: write  # required to upload release assets
-  pages: write     # required to publish docs/appcast.xml to GitHub Pages
-  id-token: write  # required by actions/deploy-pages
 
 jobs:
   build-dmg:
     name: Build DMG & ZIP
     runs-on: macos-15
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -117,16 +112,20 @@ jobs:
           overwrite_files: true
           fail_on_unmatched_files: true
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Publish appcast to gh-pages branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PAGES_DIR="$(mktemp -d)"
+          cp -R docs/. "$PAGES_DIR/"
+          touch "$PAGES_DIR/.nojekyll"
 
-      - name: Upload GitHub Pages artefact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-
-      - name: Deploy appcast to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git -C "$PAGES_DIR" init
+          git -C "$PAGES_DIR" config user.name "github-actions[bot]"
+          git -C "$PAGES_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$PAGES_DIR" checkout -b gh-pages
+          git -C "$PAGES_DIR" add .
+          git -C "$PAGES_DIR" commit -m "Publish appcast for ${GITHUB_REF_NAME}"
+          git -C "$PAGES_DIR" remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git -C "$PAGES_DIR" push --force origin HEAD:gh-pages
