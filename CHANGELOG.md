@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - Sparkle's "You're up to date!" result is now treated as a normal no-update state instead of a red update failure banner.
+- Launch-at-login now reconciles the stored preference with the real `SMAppService` status, reports registration failures in Settings, and refreshes the login item registration after app updates.
 
 
 ## [0.1.1] — 2026-04-25

@@ -8,6 +8,7 @@ struct GeneralTab: View {
     @Bindable var settings: SettingsStore
     let viewModel: AirQualityViewModel
     @State var search: CitySearchViewModel
+    @State private var launchAtLoginError: String?
 
     var body: some View {
         Form {
@@ -64,19 +65,39 @@ struct GeneralTab: View {
                     }
                 }
                 LabeledContent(L10n.Settings.startupLabel) {
-                    Toggle(L10n.Settings.launchAtLogin, isOn: Binding(
-                        get: { settings.launchAtLogin },
-                        set: { newValue in
-                            settings.launchAtLogin = newValue
-                            LaunchAtLogin.setEnabled(newValue)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle(L10n.Settings.launchAtLogin, isOn: Binding(
+                            get: { settings.launchAtLogin },
+                            set: { updateLaunchAtLogin($0) }
+                        ))
+                        .toggleStyle(.switch)
+
+                        if let launchAtLoginError {
+                            Text(launchAtLoginError)
+                                .font(.system(size: 11))
+                                .foregroundStyle(.red)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                    ))
-                    .toggleStyle(.switch)
+                    }
                 }
             }
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
+        .onAppear {
+            settings.launchAtLogin = LaunchAtLogin.isEnabled
+        }
+    }
+
+    private func updateLaunchAtLogin(_ enabled: Bool) {
+        do {
+            try LaunchAtLogin.setEnabled(enabled)
+            settings.launchAtLogin = LaunchAtLogin.isEnabled
+            launchAtLoginError = nil
+        } catch {
+            settings.launchAtLogin = LaunchAtLogin.isEnabled
+            launchAtLoginError = L10n.Settings.launchAtLoginFailed(error.localizedDescription)
+        }
     }
 }
 

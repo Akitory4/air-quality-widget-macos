@@ -59,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         terminateOtherRunningInstances()
         applyAppearance()
+        reconcileLaunchAtLoginPreference()
         menuBar = MenuBarController(
             viewModel: viewModel,
             settings: settings,
@@ -133,6 +134,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func applyAppearance() {
         NSApp.appearance = settings.appearance.nsAppearance
+    }
+
+    private func reconcileLaunchAtLoginPreference() {
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+
+        do {
+            try LaunchAtLogin.reconcile(enabledPreference: settings.launchAtLogin)
+            settings.launchAtLogin = LaunchAtLogin.isEnabled
+        } catch {
+            NSLog("LaunchAtLogin registration repair failed: \(error.localizedDescription)")
+            if !LaunchAtLogin.isEnabled {
+                settings.launchAtLogin = false
+            }
+        }
     }
 
     private func presentInitialUIIfNeeded() {

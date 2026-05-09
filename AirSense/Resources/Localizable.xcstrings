@@ -1140,6 +1140,17 @@
         }
       }
     },
+    "settings.launch_at_login_failed_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Launch at login failed: %@"
+          }
+        }
+      }
+    },
     "settings.locating" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

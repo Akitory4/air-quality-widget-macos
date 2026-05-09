@@ -33,6 +33,12 @@ extension L10n {
         static let showAQIValue = String(localized: "settings.show_aqi_value", defaultValue: "Show AQI value next to icon")
         static let startup = String(localized: "settings.startup", defaultValue: "Startup")
         static let launchAtLogin = String(localized: "settings.launch_at_login", defaultValue: "Launch at login")
+        static func launchAtLoginFailed(_ message: String) -> String {
+            L10n.format(
+                String(localized: "settings.launch_at_login_failed_format", defaultValue: "Launch at login failed: %@"),
+                message
+            )
+        }
         static let provider = String(localized: "settings.provider", defaultValue: "Provider")
         static let providerOpenMeteo = String(
             localized: "settings.provider_open_meteo",
