@@ -19,13 +19,22 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+-*"
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub Release tag to update, for example 0.1.2
+        required: true
+        type: string
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: write  # required to upload release assets
+
+env:
+  RELEASE_TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
 
 jobs:
   build-dmg:
@@ -67,7 +76,7 @@ jobs:
 
       - name: Generate Sparkle appcast
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG_NAME }}
           SPARKLE_PRIVATE_ED_KEY: ${{ secrets.SPARKLE_PRIVATE_ED_KEY }}
           SPARKLE_SIGN_UPDATE: ${{ steps.sparkle.outputs.sign_update }}
         run: |
@@ -93,7 +102,7 @@ jobs:
       - name: Upload to workflow artefacts (backup)
         uses: actions/upload-artifact@v4
         with:
-          name: airsense-${{ github.ref_name }}
+          name: airsense-${{ env.RELEASE_TAG_NAME }}
           path: |
             build/Release/*.dmg
             build/Release/*.zip
@@ -102,6 +111,7 @@ jobs:
       - name: Attach to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG_NAME }}
           # The Release for this tag is created/updated implicitly; if the user
           # already created it from the web UI, assets are just appended.
           files: |
@@ -126,6 +136,6 @@ jobs:
           git -C "$PAGES_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git -C "$PAGES_DIR" checkout -b gh-pages
           git -C "$PAGES_DIR" add .
-          git -C "$PAGES_DIR" commit -m "Publish appcast for ${GITHUB_REF_NAME}"
+          git -C "$PAGES_DIR" commit -m "Publish appcast for ${RELEASE_TAG_NAME}"
           git -C "$PAGES_DIR" remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git -C "$PAGES_DIR" push --force origin HEAD:gh-pages
