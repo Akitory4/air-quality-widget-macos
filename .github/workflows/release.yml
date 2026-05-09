@@ -114,10 +114,13 @@ jobs:
             ${{ steps.artefacts.outputs.zip }}
           # Keep release body intact (don't clobber manual notes).
           append_body: false
+          overwrite_files: true
           fail_on_unmatched_files: true
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload GitHub Pages artefact
         uses: actions/upload-pages-artifact@v3

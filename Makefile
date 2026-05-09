@@ -5,7 +5,7 @@ INSTALL_DEST := /Applications/AirSense.app
 SPARKLE_FEED_URL ?= https://akitory4.github.io/air-quality-widget-macos/appcast.xml
 SPARKLE_PUBLIC_ED_KEY ?= 3tPOq5PVRyS7omJcqKzCxNiIvFRg81NPUZsTLvJ9j7c=
 
-.PHONY: setup generate build test lint clean archive package-dmg package-zip appcast release release-with-appcast dmg install
+.PHONY: setup generate build test lint clean archive resign-release package-dmg package-zip appcast release release-with-appcast dmg install
 
 setup:
 	@command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
@@ -59,7 +59,26 @@ archive:
 		build
 	mkdir -p build/Release
 	cp -R build/DerivedData/Build/Products/Release/$(SCHEME).app build/Release/AirSense.app
+	$(MAKE) resign-release
 	@echo "Built build/Release/AirSense.app"
+
+resign-release:
+	@test -d build/Release/AirSense.app || { echo "build/Release/AirSense.app not found. Run: make archive"; exit 1; }
+	@mkdir -p build/Release/Signing
+	@sed 's/$$(PRODUCT_BUNDLE_IDENTIFIER)/local.airqualitywidget/g' AirSense/Resources/AirSense.entitlements > build/Release/Signing/AirSense.entitlements
+	@if [ -d build/Release/AirSense.app/Contents/Frameworks/Sparkle.framework ]; then \
+		codesign --force --deep --sign - --options runtime --preserve-metadata=entitlements \
+			build/Release/AirSense.app/Contents/Frameworks/Sparkle.framework; \
+	fi
+	@if [ -d build/Release/AirSense.app/Contents/PlugIns/AirSenseWidget.appex ]; then \
+		codesign --force --sign - --options runtime \
+			--entitlements AirSenseWidget/AirSenseWidget.entitlements \
+			build/Release/AirSense.app/Contents/PlugIns/AirSenseWidget.appex; \
+	fi
+	codesign --force --sign - --options runtime \
+		--entitlements build/Release/Signing/AirSense.entitlements \
+		build/Release/AirSense.app
+	codesign --verify --deep --strict --verbose=4 build/Release/AirSense.app
 
 package-dmg:
 	@test -d build/Release/AirSense.app || { echo "build/Release/AirSense.app not found. Run: make archive"; exit 1; }
