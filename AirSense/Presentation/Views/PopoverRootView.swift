@@ -6,15 +6,16 @@ import SwiftUI
 struct PopoverRootView: View {
     @Bindable var viewModel: AirQualityViewModel
     @Bindable var settings: SettingsStore
+    @ObservedObject var appUpdate: AppUpdateController
     let openSettings: () -> Void
 
     var body: some View {
         Group {
             switch viewModel.state {
             case .empty:
-                EmptyStateView(onOpenSettings: openSettings)
+                EmptyStateView(appUpdate: appUpdate, onOpenSettings: openSettings)
             case .loading:
-                LoadingStateView(city: L10n.Common.airQuality, coordinates: L10n.Common.fetching)
+                LoadingStateView(city: L10n.Common.airQuality, coordinates: L10n.Common.fetching, appUpdate: appUpdate)
             case .loaded(let snapshot):
                 LoadedPopoverContent(
                     snapshot: snapshot,
@@ -22,6 +23,7 @@ struct PopoverRootView: View {
                     footerText: L10n.Common.justNow,
                     refreshing: false,
                     topBanner: nil,
+                    appUpdate: appUpdate,
                     onRefresh: viewModel.refresh,
                     onSettings: openSettings
                 )
@@ -32,6 +34,7 @@ struct PopoverRootView: View {
                     footerText: L10n.Common.justNow,
                     refreshing: true,
                     topBanner: nil,
+                    appUpdate: appUpdate,
                     onRefresh: {},
                     onSettings: openSettings
                 )
@@ -42,6 +45,7 @@ struct PopoverRootView: View {
                     footerText: L10n.Common.minutesAgoOffline(minutesAgo),
                     refreshing: false,
                     topBanner: (.amber, L10n.Popover.staleCachedDataBanner(minutes: minutesAgo)),
+                    appUpdate: appUpdate,
                     onRefresh: viewModel.refresh,
                     onSettings: openSettings
                 )
@@ -54,6 +58,7 @@ struct PopoverRootView: View {
                         footerText: L10n.Common.failed,
                         refreshing: false,
                         topBanner: (.red, message),
+                        appUpdate: appUpdate,
                         onRefresh: viewModel.refresh,
                         onSettings: openSettings
                     )
@@ -62,6 +67,7 @@ struct PopoverRootView: View {
                         city: L10n.Common.airQuality,
                         coordinates: "—",
                         message: message,
+                        appUpdate: appUpdate,
                         onRetry: viewModel.refresh
                     )
                 }

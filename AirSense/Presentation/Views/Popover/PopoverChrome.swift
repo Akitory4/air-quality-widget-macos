@@ -13,7 +13,9 @@ struct HeaderRow: View {
     let city: String
     let coordinates: String
     let refreshing: Bool
+    let updateButton: AppUpdateButtonState
     let onRefresh: () -> Void
+    let onUpdate: () -> Void
     let onSettings: () -> Void
 
     var body: some View {
@@ -41,6 +43,14 @@ struct HeaderRow: View {
                             : .default,
                         value: refreshing
                     )
+                if updateButton.isVisible {
+                    TextChipButton(
+                        title: updateButton.title,
+                        accessibilityLabel: updateButton.accessibilityLabel,
+                        isDisabled: updateButton.isDisabled,
+                        action: onUpdate
+                    )
+                }
                 IconChipButton(
                     systemName: "gearshape",
                     accessibilityLabel: L10n.MenuBar.settings,
@@ -51,6 +61,30 @@ struct HeaderRow: View {
         .padding(.horizontal, 14)
         .padding(.top, 12)
         .padding(.bottom, 10)
+    }
+}
+
+struct TextChipButton: View {
+    let title: String
+    let accessibilityLabel: String
+    let isDisabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(isDisabled ? .tertiary : .secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(minWidth: 44, minHeight: 24)
+                .padding(.horizontal, 7)
+                .background(Color.primary.opacity(isDisabled ? 0.035 : 0.06), in: RoundedRectangle(cornerRadius: 6))
+        }
+        .buttonStyle(.plain)
+        .disabled(isDisabled)
+        .accessibilityLabel(accessibilityLabel)
+        .help(accessibilityLabel)
     }
 }
 

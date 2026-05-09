@@ -122,6 +122,47 @@ enum L10n {
         }
     }
 
+    enum Update {
+        static let button = String(localized: "update.button", defaultValue: "Update")
+        static let progressPending = String(localized: "update.progress_pending", defaultValue: "…")
+        static let notConfigured = String(
+            localized: "update.not_configured",
+            defaultValue: "Updates are not configured for this build."
+        )
+        static let informationOnly = String(
+            localized: "update.information_only",
+            defaultValue: "This update cannot be installed automatically."
+        )
+
+        static func updateToVersion(_ version: String) -> String {
+            L10n.format(
+                String(localized: "update.to_version_format", defaultValue: "Update to version %@"),
+                version
+            )
+        }
+
+        static func configurationFailed(_ reason: String) -> String {
+            L10n.format(
+                String(localized: "update.configuration_failed_format", defaultValue: "Update configuration failed: %@"),
+                reason
+            )
+        }
+
+        static func failed(_ reason: String) -> String {
+            L10n.format(
+                String(localized: "update.failed_format", defaultValue: "Update failed: %@"),
+                reason
+            )
+        }
+
+        static func percent(_ value: Int) -> String {
+            L10n.format(
+                String(localized: "update.percent_format", defaultValue: "%d%%"),
+                value
+            )
+        }
+    }
+
     enum Location {
         static let servicesDisabled = String(
             localized: "location.services_disabled",

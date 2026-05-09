@@ -2,7 +2,8 @@ name: Release
 
 # Triggers on every tag that looks like a version (e.g. `0.1.0-beta`, `0.2.0`,
 # `v1.0.0`). Builds the Release .app, packages it into a drag-to-Applications
-# DMG and a parallel ZIP, then attaches both to the matching GitHub Release.
+# DMG and a parallel Sparkle ZIP, attaches both to the matching GitHub Release,
+# then publishes the signed Sparkle appcast to GitHub Pages.
 #
 # Notes on signing:
 # - We use ad-hoc ("Sign to Run Locally") signing — same as local `make dmg`.
@@ -25,11 +26,16 @@ concurrency:
 
 permissions:
   contents: write  # required to upload release assets
+  pages: write     # required to publish docs/appcast.xml to GitHub Pages
+  id-token: write  # required by actions/deploy-pages
 
 jobs:
   build-dmg:
     name: Build DMG & ZIP
     runs-on: macos-15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +59,28 @@ jobs:
 
       - name: Build ZIP
         run: make package-zip
+
+      - name: Locate Sparkle signing tool
+        id: sparkle
+        run: |
+          SIGN_UPDATE=$(find build -path '*/Sparkle/bin/sign_update' -type f | head -n 1)
+          if [[ -z "$SIGN_UPDATE" ]]; then
+            echo "Sparkle sign_update tool was not found in build artifacts." >&2
+            exit 1
+          fi
+          echo "sign_update=$SIGN_UPDATE" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Sparkle appcast
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          SPARKLE_PRIVATE_ED_KEY: ${{ secrets.SPARKLE_PRIVATE_ED_KEY }}
+          SPARKLE_SIGN_UPDATE: ${{ steps.sparkle.outputs.sign_update }}
+        run: |
+          if [[ -z "$SPARKLE_PRIVATE_ED_KEY" ]]; then
+            echo "SPARKLE_PRIVATE_ED_KEY secret is required to sign the Sparkle update." >&2
+            exit 1
+          fi
+          scripts/generate_appcast.sh
 
       - name: Collect artefacts
         id: artefacts
@@ -87,3 +115,15 @@ jobs:
           # Keep release body intact (don't clobber manual notes).
           append_body: false
           fail_on_unmatched_files: true
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artefact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy appcast to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

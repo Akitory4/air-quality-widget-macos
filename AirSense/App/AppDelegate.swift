@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         geocoder: dependencies.geocodingService,
         locationService: dependencies.locationService
     )
+    private(set) lazy var appUpdate = AppUpdateController()
     private var menuBar: MenuBarController?
     private var onboardingWindowController: OnboardingWindowController?
     private var settingsWindowController: SettingsWindowController?
@@ -61,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar = MenuBarController(
             viewModel: viewModel,
             settings: settings,
+            appUpdate: appUpdate,
             openSettings: { [weak self] in
                 self?.presentSettingsWindow()
             }
@@ -70,12 +72,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeSettings()
         observeAppearance()
         viewModel.bootstrap()
+        appUpdate.start()
         presentInitialUIIfNeeded()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         isObservingSettings = false
         scheduler?.stop()
+        appUpdate.stop()
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {

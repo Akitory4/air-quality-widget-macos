@@ -11,6 +11,7 @@ final class MenuBarController {
     private let popover: NSPopover
     private let viewModel: AirQualityViewModel
     private let settings: SettingsStore
+    private let appUpdate: AppUpdateController
     private let openSettingsAction: () -> Void
     private var eventMonitor: Any?
     private var isObserving = true
@@ -18,10 +19,12 @@ final class MenuBarController {
     init(
         viewModel: AirQualityViewModel,
         settings: SettingsStore,
+        appUpdate: AppUpdateController,
         openSettings: @escaping () -> Void
     ) {
         self.viewModel = viewModel
         self.settings = settings
+        self.appUpdate = appUpdate
         self.openSettingsAction = openSettings
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
@@ -54,9 +57,14 @@ final class MenuBarController {
     }
 
     private func installPopoverContent() {
-        let root = PopoverRootView(viewModel: viewModel, settings: settings, openSettings: { [weak self] in
-            self?.openSettings()
-        })
+        let root = PopoverRootView(
+            viewModel: viewModel,
+            settings: settings,
+            appUpdate: appUpdate,
+            openSettings: { [weak self] in
+                self?.openSettings()
+            }
+        )
         let hosting = NSHostingController(rootView: root)
         hosting.view.frame = NSRect(x: 0, y: 0, width: PopoverMetrics.width, height: PopoverMetrics.height)
         hosting.view.appearance = settings.appearance.nsAppearance

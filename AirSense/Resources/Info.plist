@@ -28,6 +28,22 @@
     <string>AirSense uses your location only to show air quality for your current city. Your location is not stored or sent anywhere except to the air-quality API you have selected.</string>
     <key>NSHumanReadableCopyright</key>
     <string>© 2026 AirSense</string>
+    <key>SUFeedURL</key>
+    <string>$(SPARKLE_FEED_URL)</string>
+    <key>SUPublicEDKey</key>
+    <string>$(SPARKLE_PUBLIC_ED_KEY)</string>
+    <key>SUEnableAutomaticChecks</key>
+    <false/>
+    <key>SUAllowsAutomaticUpdates</key>
+    <false/>
+    <key>SUAutomaticallyUpdate</key>
+    <false/>
+    <key>SUShowReleaseNotes</key>
+    <false/>
+    <key>SUEnableInstallerLauncherService</key>
+    <true/>
+    <key>SUVerifyUpdateBeforeExtraction</key>
+    <true/>
     <key>CFBundleURLTypes</key>
     <array>
         <dict>
