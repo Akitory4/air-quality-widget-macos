@@ -2,8 +2,10 @@ SCHEME := AirSense
 PROJECT := AirSense.xcodeproj
 DESTINATION := platform=macOS
 INSTALL_DEST := /Applications/AirSense.app
+SPARKLE_FEED_URL ?= https://akitory4.github.io/air-quality-widget-macos/appcast.xml
+SPARKLE_PUBLIC_ED_KEY ?= 3tPOq5PVRyS7omJcqKzCxNiIvFRg81NPUZsTLvJ9j7c=
 
-.PHONY: setup generate build test lint clean archive package-dmg package-zip release dmg install
+.PHONY: setup generate build test lint clean archive package-dmg package-zip appcast release release-with-appcast dmg install
 
 setup:
 	@command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
@@ -18,10 +20,14 @@ build:
 		-project $(PROJECT) \
 		-scheme $(SCHEME) \
 		-destination '$(DESTINATION)' \
+		SPARKLE_FEED_URL='$(SPARKLE_FEED_URL)' \
+		SPARKLE_PUBLIC_ED_KEY='$(SPARKLE_PUBLIC_ED_KEY)' \
 		CODE_SIGNING_ALLOWED=NO | xcbeautify || xcodebuild build \
 		-project $(PROJECT) \
 		-scheme $(SCHEME) \
 		-destination '$(DESTINATION)' \
+		SPARKLE_FEED_URL='$(SPARKLE_FEED_URL)' \
+		SPARKLE_PUBLIC_ED_KEY='$(SPARKLE_PUBLIC_ED_KEY)' \
 		CODE_SIGNING_ALLOWED=NO
 
 test:
@@ -45,6 +51,8 @@ archive:
 		-configuration Release \
 		-destination '$(DESTINATION)' \
 		-derivedDataPath build/DerivedData \
+		SPARKLE_FEED_URL='$(SPARKLE_FEED_URL)' \
+		SPARKLE_PUBLIC_ED_KEY='$(SPARKLE_PUBLIC_ED_KEY)' \
 		CODE_SIGN_IDENTITY=- \
 		CODE_SIGN_STYLE=Manual \
 		DEVELOPMENT_TEAM="" \
@@ -102,4 +110,12 @@ package-zip:
 	cd build/Release && ditto -c -k --sequesterRsrc --keepParent AirSense.app AirSense-$$VERSION.zip && \
 	echo "Packaged build/Release/AirSense-$$VERSION.zip"
 
+appcast: package-zip
+	scripts/generate_appcast.sh
+
 release: archive package-zip
+
+release-with-appcast:
+	@test -n "$(SPARKLE_PUBLIC_ED_KEY)" || { echo "SPARKLE_PUBLIC_ED_KEY is required for auto-update release builds."; exit 1; }
+	$(MAKE) release SPARKLE_FEED_URL='$(SPARKLE_FEED_URL)' SPARKLE_PUBLIC_ED_KEY='$(SPARKLE_PUBLIC_ED_KEY)'
+	scripts/generate_appcast.sh

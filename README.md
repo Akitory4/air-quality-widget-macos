@@ -15,6 +15,7 @@ Native macOS menu-bar widget that shows the current air quality (AQI + pollutant
   - **Open-Meteo** (default, no signup) — CAMS forecast model on a ~11 km grid
   - **WAQI / aqicn.org** (opt-in, free token) — aggregated ground stations, usually matches IQAir for the same city. Token stored in the macOS Keychain.
 - Offline-aware: caches the last good snapshot and shows stale/retry states with the actual error message
+- Sparkle-backed in-app update button when a newer GitHub Release is available
 - Launch at login (SMAppService) and localisation-ready (`Localizable.xcstrings`)
 
 ## Install (end users)
@@ -37,6 +38,7 @@ Native macOS menu-bar widget that shows the current air quality (AQI + pollutant
 - Xcode 15+ (verified with Xcode 26 on macOS 15)
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) — generates `AirSense.xcodeproj` from `project.yml`
 - [SwiftLint](https://github.com/realm/SwiftLint) — optional, used by CI
+- [Sparkle](https://sparkle-project.org) signing tools — required only when publishing the auto-update appcast
 
 ### Setup
 
@@ -62,11 +64,14 @@ The generated `.xcodeproj` is intentionally gitignored — `project.yml` is the 
 | `make build`   | Build the app from the command line      |
 | `make test`    | Run unit tests                           |
 | `make lint`    | Run SwiftLint in strict mode             |
+| `make release-with-appcast` | Build the release ZIP and regenerate `docs/appcast.xml` |
 | `make clean`   | Remove build artefacts and generated project |
 
 ## Signing
 
 MVP ships **without a Developer ID signature**. The project uses Xcode's ad-hoc "Sign to Run Locally" signing. When launching a distributed build for the first time, macOS will block it — open *System Settings → Privacy & Security* and choose *Open anyway*. Developer ID signing + notarisation is tracked for a later release.
+
+Auto-updates use Sparkle and GitHub Pages. Release builds embed the checked-in `SPARKLE_PUBLIC_ED_KEY`, and `scripts/generate_appcast.sh` must be run with Sparkle's `sign_update` tool available so `docs/appcast.xml` contains a signed enclosure for `AirSense-<version>.zip`.
 
 ## Privacy
 

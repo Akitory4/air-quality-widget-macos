@@ -9,6 +9,7 @@ struct LoadedPopoverContent: View {
     let footerText: String
     let refreshing: Bool
     let topBanner: (BannerTone, String)?
+    @ObservedObject var appUpdate: AppUpdateController
     let onRefresh: () -> Void
     let onSettings: () -> Void
 
@@ -18,12 +19,17 @@ struct LoadedPopoverContent: View {
                 city: snapshot.city.displayName,
                 coordinates: snapshot.city.formattedCoordinates,
                 refreshing: refreshing,
+                updateButton: appUpdate.buttonState,
                 onRefresh: onRefresh,
+                onUpdate: appUpdate.installUpdate,
                 onSettings: onSettings
             )
             if refreshing {
                 ProgressStrip()
                     .padding(.top, -4)
+            }
+            if let updateError = appUpdate.errorMessage {
+                BannerView(tone: .red, message: updateError)
             }
             if let topBanner {
                 BannerView(tone: topBanner.0, message: topBanner.1)
@@ -43,6 +49,7 @@ struct LoadedPopoverContent: View {
 }
 
 struct EmptyStateView: View {
+    @ObservedObject var appUpdate: AppUpdateController
     let onOpenSettings: () -> Void
 
     var body: some View {
@@ -51,9 +58,14 @@ struct EmptyStateView: View {
                 city: L10n.Common.airQuality,
                 coordinates: L10n.Popover.noCitySelected,
                 refreshing: false,
+                updateButton: appUpdate.buttonState,
                 onRefresh: {},
+                onUpdate: appUpdate.installUpdate,
                 onSettings: onOpenSettings
             )
+            if let updateError = appUpdate.errorMessage {
+                BannerView(tone: .red, message: updateError)
+            }
             Spacer(minLength: 0)
             VStack(spacing: 14) {
                 ZStack {
@@ -88,6 +100,7 @@ struct EmptyStateView: View {
 struct LoadingStateView: View {
     let city: String
     let coordinates: String
+    @ObservedObject var appUpdate: AppUpdateController
 
     var body: some View {
         VStack(spacing: 0) {
@@ -95,9 +108,14 @@ struct LoadingStateView: View {
                 city: city,
                 coordinates: coordinates,
                 refreshing: false,
+                updateButton: appUpdate.buttonState,
                 onRefresh: {},
+                onUpdate: appUpdate.installUpdate,
                 onSettings: {}
             )
+            if let updateError = appUpdate.errorMessage {
+                BannerView(tone: .red, message: updateError)
+            }
             Spacer(minLength: 0)
             VStack(spacing: 14) {
                 ProgressView()
@@ -116,6 +134,7 @@ struct ErrorStateView: View {
     let city: String
     let coordinates: String
     let message: String
+    @ObservedObject var appUpdate: AppUpdateController
     let onRetry: () -> Void
 
     var body: some View {
@@ -124,9 +143,14 @@ struct ErrorStateView: View {
                 city: city,
                 coordinates: coordinates,
                 refreshing: false,
+                updateButton: appUpdate.buttonState,
                 onRefresh: onRetry,
+                onUpdate: appUpdate.installUpdate,
                 onSettings: {}
             )
+            if let updateError = appUpdate.errorMessage {
+                BannerView(tone: .red, message: updateError)
+            }
             BannerView(
                 tone: .red,
                 message: message,

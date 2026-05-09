@@ -1557,6 +1557,94 @@
           }
         }
       }
+    },
+    "update.button" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Update"
+          }
+        }
+      }
+    },
+    "update.configuration_failed_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Update configuration failed: %@"
+          }
+        }
+      }
+    },
+    "update.failed_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Update failed: %@"
+          }
+        }
+      }
+    },
+    "update.information_only" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This update cannot be installed automatically."
+          }
+        }
+      }
+    },
+    "update.not_configured" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Updates are not configured for this build."
+          }
+        }
+      }
+    },
+    "update.percent_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%d%%"
+          }
+        }
+      }
+    },
+    "update.progress_pending" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "…"
+          }
+        }
+      }
+    },
+    "update.to_version_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Update to version %@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

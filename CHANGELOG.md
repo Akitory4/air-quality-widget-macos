@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 _No changes yet._
 
+## [0.1.2] — 2026-05-09
+
+### Added
+
+- Sparkle-backed in-app update flow: AirSense can check the GitHub Pages appcast, show an `Update` button in the menu-bar popover when a newer release is available, download the signed ZIP asset, install it, and relaunch without opening the GitHub Releases page.
+- Minimal update progress UI in the popover header, plus a compact error banner when update download or installation fails.
+- GitHub Pages appcast publishing support via `docs/appcast.xml` generation and `make release-with-appcast`.
+
+### Changed
+
+- Release builds now accept `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_ED_KEY` build settings so dev/MVP ad-hoc builds can keep updater configuration explicit.
+- Sandbox entitlements now include Sparkle installer-launcher mach lookup exceptions required for sandboxed self-updates.
+
 ## [0.1.0-beta] — 2026-04-19
 
 First public beta. The app is feature-complete for a personal air-quality menu-bar widget, with an optional higher-accuracy provider (WAQI) and a polished onboarding/popover flow.
