@@ -20,6 +20,10 @@ final class LocalizationSupportTests: XCTestCase {
         )
     }
 
+    func test_checkUpdatesMenuItem_usesExpectedEnglishFallback() {
+        XCTAssertEqual(L10n.MenuBar.checkUpdates, "Check updates")
+    }
+
     func test_statusItemAccessibility_usesExpectedEnglishFallback() {
         XCTAssertEqual(
             L10n.MenuBar.statusItemAccessibility(value: 42, category: AQICategory.good.label, city: "Nicosia"),

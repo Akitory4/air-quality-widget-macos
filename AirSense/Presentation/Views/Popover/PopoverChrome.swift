@@ -31,6 +31,14 @@ struct HeaderRow: View {
             }
             Spacer(minLength: 0)
             HStack(spacing: 4) {
+                if updateButton.isVisible {
+                    TextChipButton(
+                        title: updateButton.title,
+                        accessibilityLabel: updateButton.accessibilityLabel,
+                        isDisabled: updateButton.isDisabled,
+                        action: onUpdate
+                    )
+                }
                 IconChipButton(
                     systemName: "arrow.clockwise",
                     accessibilityLabel: L10n.MenuBar.refresh,
@@ -43,20 +51,14 @@ struct HeaderRow: View {
                             : .default,
                         value: refreshing
                     )
-                if updateButton.isVisible {
-                    TextChipButton(
-                        title: updateButton.title,
-                        accessibilityLabel: updateButton.accessibilityLabel,
-                        isDisabled: updateButton.isDisabled,
-                        action: onUpdate
-                    )
-                }
                 IconChipButton(
                     systemName: "gearshape",
                     accessibilityLabel: L10n.MenuBar.settings,
                     action: onSettings
                 )
             }
+            .fixedSize(horizontal: true, vertical: false)
+            .layoutPriority(1)
         }
         .padding(.horizontal, 14)
         .padding(.top, 12)
@@ -77,7 +79,7 @@ struct TextChipButton: View {
                 .foregroundStyle(isDisabled ? .tertiary : .secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-                .frame(minWidth: 44, minHeight: 24)
+                .frame(minWidth: 58, minHeight: 24)
                 .padding(.horizontal, 7)
                 .background(Color.primary.opacity(isDisabled ? 0.035 : 0.06), in: RoundedRectangle(cornerRadius: 6))
         }

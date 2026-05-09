@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [0.1.3] — 2026-05-10
 
+### Added
+
+- The status bar icon context menu now includes `Check updates`, which opens the popover and starts the Sparkle update flow.
+
 ### Changed
 
 - Bumped the app marketing version to `0.1.3` and build number to `4`.
@@ -13,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - Launch-at-login now reconciles the stored preference with the real `SMAppService` status, reports registration failures in Settings, and refreshes the login item registration after app updates.
+- The in-popover `Update` button no longer gets stuck as a disabled progress placeholder after a background update check finds a newer version.
 
 ## [0.1.2] — 2026-05-09
 

@@ -129,7 +129,7 @@ final class AppUpdateController: NSObject, ObservableObject {
             displayVersion: item.displayVersionString,
             downloadURL: item.fileURL
         )
-        if !phase.isBusy {
+        if !phase.isBusy || (phase == .checking && !installRequested) {
             phase = .available
         }
     }

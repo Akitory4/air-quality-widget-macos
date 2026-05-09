@@ -148,6 +148,11 @@ final class MenuBarController {
         menu.addItem(withTitle: L10n.MenuBar.refresh,
                      action: #selector(menuRefresh),
                      keyEquivalent: "r").target = self
+        let updatesItem = menu.addItem(withTitle: L10n.MenuBar.checkUpdates,
+                                       action: #selector(menuCheckUpdates),
+                                       keyEquivalent: "u")
+        updatesItem.target = self
+        updatesItem.isEnabled = !appUpdate.phase.isBusy
         menu.addItem(withTitle: L10n.MenuBar.settingsEllipsis,
                      action: #selector(menuSettings),
                      keyEquivalent: ",").target = self
@@ -161,6 +166,10 @@ final class MenuBarController {
     }
 
     @objc private func menuRefresh() { viewModel.refresh() }
+    @objc private func menuCheckUpdates() {
+        showPopover()
+        appUpdate.installUpdate()
+    }
     @objc private func menuSettings() { openSettings() }
 
     private func openSettings() {

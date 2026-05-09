@@ -469,6 +469,17 @@
         }
       }
     },
+    "menu.check_updates" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Check updates"
+          }
+        }
+      }
+    },
     "menu.quit_app_format" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {

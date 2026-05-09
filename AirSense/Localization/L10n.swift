@@ -80,6 +80,7 @@ enum L10n {
 
     enum MenuBar {
         static let refresh = String(localized: "menu.refresh", defaultValue: "Refresh")
+        static let checkUpdates = String(localized: "menu.check_updates", defaultValue: "Check updates")
         static let settings = String(localized: "menu.settings", defaultValue: "Settings")
         static let settingsEllipsis = String(localized: "menu.settings_ellipsis", defaultValue: "Settings…")
         static let airQualityAccessibility = String(localized: "menu.air_quality_accessibility", defaultValue: "Air quality")
